@@ -1,51 +1,81 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 import joblib
 import pandas as pd
 import os
 
-# 1. Initialize FastAPI
 app = FastAPI(title="SaaS User Retention API")
 
-# 2. Check if the model exists before loading to prevent hanging
-model_path = "churn_pipeline.pkl"
-if os.path.exists(model_path):
-    print("Loading model...")
-    model = joblib.load(model_path)
-    print("Model loaded successfully!")
+# Load model and encoders
+MODEL_PATH = "churn_pipeline.pkl"
+ENCODER_PATH = "encoders.pkl"
+
+if os.path.exists(MODEL_PATH) and os.path.exists(ENCODER_PATH):
+    model = joblib.load(MODEL_PATH)
+    encoders = joblib.load(ENCODER_PATH)
 else:
-    print(f"ERROR: {model_path} not found.")
     model = None
+    encoders = None
+
+# Define the input schema for validation
+class UserData(BaseModel):
+    gender: str
+    age: int
+    country: str
+    city: str
+    customer_segment: str
+    tenure_months: int
+    signup_channel: str
+    contract_type: str
+    monthly_logins: int
+    weekly_active_days: int
+    avg_session_time: float
+    features_used: int
+    usage_growth_rate: float
+    last_login_days_ago: int
+    monthly_fee: float
+    total_revenue: float
+    payment_method: str
+    payment_failures: int
+    discount_applied: str
+    price_increase_last_3m: str
+    support_tickets: int
+    avg_resolution_time: float
+    complaint_type: str
+    csat_score: float
+    escalations: int
+    email_open_rate: float
+    marketing_click_rate: float
+    nps_score: int
+    survey_response: str
+    referral_count: int
 
 @app.get("/")
 def home():
-    """Root endpoint to verify the API is alive."""
     return {"message": "SaaS Churn Prediction API is running"}
-# Mappings based on LabelEncoder alphabetical ordering
-# Note: Double-check these against your notebook's LabelEncoder.classes_
-gender_map = {"Female": 0, "Male": 1}
-country_map = {"Australia": 0, "Bangladesh": 1, "Canada": 2, "Germany": 3, "USA": 4}
-contract_map = {"Annual": 0, "Monthly": 1, "Yearly": 2}
 
 @app.post("/predict")
-def predict_churn(data: dict):
-    try:
-        # Create a copy of input data to modify
-        input_data = data.copy()
+def predict_churn(user: UserData):
+    if model is None or encoders is None:
+        raise HTTPException(status_code=500, detail="Model or Encoders not loaded")
 
-        # Manually encode categorical strings to numbers
-        if "gender" in input_data:
-            input_data["gender"] = gender_map.get(input_data["gender"], 0)
+    try:
+        # Convert Pydantic model to dict
+        input_dict = user.dict()
         
-        if "country" in input_data:
-            input_data["country"] = country_map.get(input_data["country"], 0)
-            
-        if "contract_type" in input_data:
-            input_data["contract_type"] = contract_map.get(input_data["contract_type"], 0)
+        # Apply the saved LabelEncoders to categorical fields
+        for col, le in encoders.items():
+            val = input_dict.get(col)
+            # Handle unseen labels by defaulting to the first class if necessary
+            if val in le.classes_:
+                input_dict[col] = int(le.transform([val])[0])
+            else:
+                input_dict[col] = 0 
 
         # Convert to DataFrame
-        df = pd.DataFrame([input_data])
+        df = pd.DataFrame([input_dict])
         
-        # Make prediction
+        # Predict
         prediction = model.predict(df)[0]
         probability = model.predict_proba(df)[0][1]
 
