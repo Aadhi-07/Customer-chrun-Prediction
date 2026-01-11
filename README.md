@@ -23,7 +23,7 @@ Data Source: saas_users.csv
 git clone https://github.com/Aadhi-07/Customer-chrun-Prediction.git
 cd Customer-chrun-Prediction
 ```
-3. Install dependencies
+2. Install dependencies
 ```
 pip install -r require.txt
 ```
