@@ -85,4 +85,4 @@ def predict_churn(user: UserData):
             "churn_probability": round(float(probability), 3)
         }
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        return {"status": "error", "message": str(e)} 

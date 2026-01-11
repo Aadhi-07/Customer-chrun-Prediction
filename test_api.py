@@ -16,4 +16,4 @@ sample_user = {
 
 response = requests.post(url, json=sample_user)
 print(f"Status Code: {response.status_code}")
-print(f"Prediction: {response.json()}")
+print(f"Prediction: {response.json()}") 
