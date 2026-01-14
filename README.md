@@ -14,7 +14,6 @@ Algorithm: Logistic Regression
 Performance: ~0.894 Accuracy on held-out data
 
 Features: ~30 user behavior & demographic variables used for prediction
-.
 
 Data Source: saas_users.csv
 
