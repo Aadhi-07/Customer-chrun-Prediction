@@ -90,4 +90,3 @@ You’ll get a prediction like:
   "probability": 0.78
 }
 ```
-ml
