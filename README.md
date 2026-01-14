@@ -1,4 +1,3 @@
-
 # SaaS Customer Churn Prediction
 
 Predicting user churn using machine learning and serving it via a FastAPI backend.
