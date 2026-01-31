@@ -2,7 +2,7 @@
 
 Predicting user churn using machine learning and serving it via a FastAPI backend.
 
-# Project Overview
+# Project Overview.
 
 This repository contains a machine learning model that predicts whether a SaaS user is likely to churn.
 A logistic regression classifier is trained on behavioral and demographic features, and the model is deployed as a simple API using FastAPI.
