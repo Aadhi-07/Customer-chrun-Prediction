@@ -30,7 +30,7 @@ pip install -r require.txt
 
 Make sure you are using Python 3.7+ and create a virtual environment if needed.
 
-# Running the API
+# Running the API.
 
 This project uses FastAPI to serve predictions:
 
